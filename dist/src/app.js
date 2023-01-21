@@ -31,5 +31,6 @@ const ROUTER = __importStar(require("./componentes"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use("/api/v1/users", ROUTER.userRouter);
+app.use("/api/v1/tracks", ROUTER.trackRouter);
 exports.default = app;
 //# sourceMappingURL=app.js.map
