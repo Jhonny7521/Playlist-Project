@@ -9,5 +9,6 @@ app.use(express.json());
 app.use (cors());
 
 app.use("/api/v1/users", ROUTER.userRouter);
+app.use("/api/v1/tracks", ROUTER.trackRouter);
 
 export default app;
