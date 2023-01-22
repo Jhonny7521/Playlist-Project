@@ -34,5 +34,6 @@ app.use(express_1.default.json());
 app.use((0, cors_1.default)());
 app.use("/api/v1/users", ROUTER.userRouter);
 app.use("/api/v1/tracks", ROUTER.trackRouter);
+app.use("/api/v1/playlist", ROUTER.playlistRouter);
 exports.default = app;
 //# sourceMappingURL=app.js.map
