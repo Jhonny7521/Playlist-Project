@@ -21,9 +21,9 @@ export const findAll = async (req: Request, res: Response): Promise<void> => {
         ok: true,
         data: users,
       });
+    } else {
+      res.status(400).json({ok: false, message: 'failed authentication'});
     }
-    
-    res.status(400).json({ok: false, message: 'failed authentication'});
 
   } catch (error) {
     res.status(500).json({ ok: false, message: error });
@@ -53,12 +53,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
       expiresIn: 86400
     });
 
-    console.log(user)
-
-    res
-      .cookie("usertoken", token, { httpOnly: true})
-      .status(201)
-      .json({ ok: true, message: "Usuario creado correctamente", data: user, token: token });
+    res.status(201).json({ ok: true, message: "Usuario creado correctamente", data: user, token: token });
 
   } catch (error) {
     console.log(error)
@@ -80,13 +75,12 @@ export const login = async (req:Request, res: Response): Promise<void> => {
         const token = jwt.sign({id: user.id, email: user.email}, secret_key, {
           expiresIn: 86400
         });
-        res
-          .cookie("usertoken", token, { httpOnly: true})
-          .status(201)
-          .status(201).json({ ok: true, message: "Login exitoso", data: user, token: token });
 
+        res.status(201).json({ ok: true, message: "Login exitoso", data: user, token: token });
+
+      } else {
+        res.status(400).json({ok: false, message: "Contraseña incorrecta"})
       }
-      res.status(400).json({ok: false, message: "Contraseña incorrecta"})
     }
   } catch (error){
     res.status(500).json({ ok: false, message: error });
