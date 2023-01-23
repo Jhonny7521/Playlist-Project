@@ -1,20 +1,24 @@
 import type { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { verify_authentication } from "../authenticate";
+import { FileWatcherEventKind } from "typescript";
 
+const secret_key = process.env.SECRET_KEY || 'Alguna llave secreta';
 const prisma = new PrismaClient();
 
 // CREATE Tracks
 
 export const store = async (req: Request, res: Response): Promise<void> => {
   try {
-    const {name, artist, album, year, genre, duration} = req.body;
+    const {name, artist, album, year, genre, duration, is_private} = req.body;
     await prisma.track.create({ data :{
             name,
             artist,
             album,
             year: new Date(year),
             genre,
-            duration
+            duration,
+            is_private,
     }});
 
     res.status(201).json({ ok: true, message: "Track creado correctamente" });
@@ -23,15 +27,27 @@ export const store = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-// GET all tracks
+// GET all tracks public or private with authentication
 
-export const findAll = async (_req: Request, res: Response): Promise<void> => {
+export const findAll = async (req: Request, res: Response): Promise<void> => {
   try {
-    const tracks = await prisma.track.findMany();
-    res.status(200).json({
-      ok: true,
-      data: tracks,
+    
+    const tracks_public = await prisma.track.findMany({
+      where:{ is_private : false}
     });
+
+    const tracks = await prisma.track.findMany();
+    if(verify_authentication(req, secret_key)){
+      res.status(200).json({
+        ok: true,
+        data: tracks,
+      });
+    }else{
+      res.status(200).json({
+        ok: true,
+        data: tracks_public,
+      });
+    }
   } catch (error) {
     res.status(500).json({ ok: false, message: error });
   }

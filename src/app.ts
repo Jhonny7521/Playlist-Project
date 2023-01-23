@@ -10,5 +10,6 @@ app.use (cors());
 
 app.use("/api/v1/users", ROUTER.userRouter);
 app.use("/api/v1/tracks", ROUTER.trackRouter);
+app.use("/api/v1/playlist", ROUTER.playlistRouter);
 
 export default app;
