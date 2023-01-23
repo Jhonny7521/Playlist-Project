@@ -29,6 +29,7 @@ model Track {
   year      DateTime
   genre     String
   duration  Int
+  is_private Boolean?   @default(false)
   playlist  TracksOnPlaylist[]
 }
 

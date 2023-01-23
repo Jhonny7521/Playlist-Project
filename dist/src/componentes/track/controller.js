@@ -11,17 +11,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.delete_track_by_id = exports.update_track = exports.get_track_by_id = exports.findAll = exports.store = void 0;
 const client_1 = require("@prisma/client");
+const authenticate_1 = require("../authenticate");
+const secret_key = process.env.SECRET_KEY || 'Alguna llave secreta';
 const prisma = new client_1.PrismaClient();
 const store = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { name, artist, album, year, genre, duration } = req.body;
+        const { name, artist, album, year, genre, duration, is_private } = req.body;
         yield prisma.track.create({ data: {
                 name,
                 artist,
                 album,
                 year: new Date(year),
                 genre,
-                duration
+                duration,
+                is_private,
             } });
         res.status(201).json({ ok: true, message: "Track creado correctamente" });
     }
@@ -30,13 +33,24 @@ const store = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 exports.store = store;
-const findAll = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const findAll = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const tracks = yield prisma.track.findMany();
-        res.status(200).json({
-            ok: true,
-            data: tracks,
+        const tracks_public = yield prisma.track.findMany({
+            where: { is_private: false }
         });
+        const tracks = yield prisma.track.findMany();
+        if ((0, authenticate_1.verify_authentication)(req, secret_key)) {
+            res.status(200).json({
+                ok: true,
+                data: tracks,
+            });
+        }
+        else {
+            res.status(200).json({
+                ok: true,
+                data: tracks_public,
+            });
+        }
     }
     catch (error) {
         res.status(500).json({ ok: false, message: error });
